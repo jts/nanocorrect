@@ -2,6 +2,7 @@ import pysam
 import sys
 import re
 import subprocess
+import os
 from collections import defaultdict
 from Bio import AlignIO
 
@@ -109,7 +110,11 @@ def run_poa_and_consensus(overlaps, read_idx):
     cmd = "poa -read_fasta %s -clustal %s -hb poa-blosum80.mat" % (in_fn, out_fn)
     p = subprocess.Popen(cmd, shell=True)
     p.wait()
-    return clustal2consensus(out_fn)
+    consensus =  clustal2consensus(out_fn)
+
+    os.remove(in_fn)
+    os.remove(out_fn)
+    return consensus
 
 def run_lashow(name, start, end):
     
@@ -144,3 +149,5 @@ for read_idx in xrange(start, end):
 
     if seq != "":
         print ">%d\n%s" % (read_idx, seq)
+
+os.remove(lashow_fn)
