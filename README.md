@@ -19,7 +19,7 @@ The NAME variable is the prefix you want to use for the output files.
 
 You can correct a range of reads using the python script:
 
-```python nanocorrect.py nc 1000:1020```
+```python nanocorrect.py nc 1000:1020 > corrected.fasta```
 
 The first argument must be the same as the NAME variable above. 
 The second is the indices of the reads (in the original fasta) that you want to correct.
