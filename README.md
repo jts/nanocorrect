@@ -1,6 +1,6 @@
 A prototype nanopore correction pipeline.
 
-Dependences:
+Dependencies:
 
 * [daligner](https://github.com/thegenemyers/DALIGNER)
 * [DAZZ_DB](https://github.com/thegenemyers/DAZZ_DB)
