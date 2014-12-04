@@ -54,6 +54,7 @@ def write_poa_input(overlaps, read_idx):
     seq1 = ref.fetch(read_id1)
     fh.write(">%s\n%s\n" % ("poabaseread", seq1))
 
+    n_reads = 0
     for o in overlaps[read_idx]:
 
         read_id2 = ref.references[o[0]]
@@ -67,13 +68,15 @@ def write_poa_input(overlaps, read_idx):
         seq2 = seq2[o[2]:o[3]]
 
         fh.write(">%s\n%s\n" % (read_id2, seq2))
+        n_reads += 1
     fh.close()
-    return fn
+    return (fn, n_reads)
 
 def clustal2consensus(fn):
 
     alignment = AlignIO.read(fn, "clustal")
 
+    min_coverage = 3
     read_row = -1
     consensus_row = -1
     
@@ -86,26 +89,50 @@ def clustal2consensus(fn):
     if consensus_row == -1:
         return ""
 
+    # Calculate a vector of depths along the consensus
+    depths = [0] * len(alignment[read_row].seq)
+
+    for record in alignment:
+        (first_col, last_col) = get_sequence_coords(record.seq)
+        for i in xrange(first_col, last_col):
+            depths[i] += 1
+    
     # Work out the first and last columns that contains
     # bases of the read we are correcting
-    first_col = -1
-    last_col = -1
-    for (i, s) in enumerate(alignment[read_row].seq):
-        if s != '-' and first_col == -1:
-            first_col = i
-        if s != '-':
-            last_col = i
+    (first_col, last_col) = get_sequence_coords(alignment[read_row].seq)
+
+    # Change the boundaries to only include high-depth bases
+    while first_col != last_col:
+        if depths[first_col] >= min_coverage:
+            break
+        first_col += 1
+
+    while last_col != first_col:
+        if depths[last_col] >= min_coverage:
+            break
+        last_col -= 1
 
     # Extract the consensus sequence
     consensus = str(alignment[consensus_row].seq[first_col:last_col])
-
-    # Replace gaps
     consensus = consensus.replace('-', '')
 
     return consensus
 
+# Return the first and last column of the multiple alignment
+# that contains a base for the given sequence row
+def get_sequence_coords(seq):
+    first_col = -1
+    last_col = -1
+    for (i, s) in enumerate(seq):
+        if s != '-' and first_col == -1:
+            first_col = i
+        if s != '-':
+            last_col = i
+    return (first_col, last_col)
+
+#
 def run_poa_and_consensus(overlaps, read_idx):
-    in_fn = write_poa_input(overlaps, read_idx)
+    (in_fn, n_reads) = write_poa_input(overlaps, read_idx)
     out_fn = "clustal-%d.out" % (read_idx)
     cmd = "poa -read_fasta %s -clustal %s -hb poa-blosum80.mat" % (in_fn, out_fn)
     p = subprocess.Popen(cmd, shell=True)
@@ -114,7 +141,7 @@ def run_poa_and_consensus(overlaps, read_idx):
 
     os.remove(in_fn)
     os.remove(out_fn)
-    return consensus
+    return (consensus, n_reads)
 
 def run_lashow(name, start, end):
     
@@ -145,9 +172,9 @@ overlaps = parse_lashow(lashow_fn)
 
 # Correct each read with POA
 for read_idx in xrange(start, end):
-    seq = run_poa_and_consensus(overlaps, read_idx)
+    (seq, n_reads) = run_poa_and_consensus(overlaps, read_idx)
 
     if seq != "":
-        print ">%d\n%s" % (read_idx, seq)
+        print ">%d n_reads=%d\n%s" % (read_idx, n_reads, seq)
 
 os.remove(lashow_fn)
