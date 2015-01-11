@@ -89,17 +89,21 @@ def clustal2consensus(fn):
     if consensus_row == -1:
         return ""
 
+    # Work out the first and last columns that contains
+    # bases of the read we are correcting
+    (first_col, last_col) = get_sequence_coords(alignment[read_row].seq)
+
+    # trim the alignment
+    for record in alignment:
+        record.seq = record.seq[first_col:last_col+1]
+
     # Calculate a vector of depths along the consensus
     depths = [0] * len(alignment[read_row].seq)
 
     for record in alignment:
-        (first_col, last_col) = get_sequence_coords(record.seq)
-        for i in xrange(first_col, last_col):
+        (aln_first_col, aln_last_col) = get_sequence_coords(record.seq)
+        for i in xrange(aln_first_col, aln_last_col):
             depths[i] += 1
-    
-    # Work out the first and last columns that contains
-    # bases of the read we are correcting
-    (first_col, last_col) = get_sequence_coords(alignment[read_row].seq)
 
     # Change the boundaries to only include high-depth bases
     while first_col != last_col:
@@ -108,7 +112,7 @@ def clustal2consensus(fn):
         first_col += 1
 
     while last_col != first_col:
-        if depths[last_col] < min_coverage:
+        if depths[last_col] >= min_coverage:
             break
         last_col -= 1
 
@@ -172,9 +176,10 @@ overlaps = parse_lashow(lashow_fn)
 
 # Correct each read with POA
 for read_idx in xrange(start, end):
-    (seq, n_reads) = run_poa_and_consensus(overlaps, read_idx)
+    if read_idx == 4171:
+        (seq, n_reads) = run_poa_and_consensus(overlaps, read_idx)
 
-    if seq != "":
-        print ">%d n_reads=%d\n%s" % (read_idx, n_reads, seq)
+        if seq != "":
+            print ">%d n_reads=%d\n%s" % (read_idx, n_reads, seq)
 
 os.remove(lashow_fn)
