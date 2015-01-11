@@ -99,7 +99,8 @@ def clustal2consensus(fn):
     for record in alignment:
         (aln_first_col, aln_last_col) = get_sequence_coords(record.seq)
         for i in xrange(aln_first_col, aln_last_col):
-            if aln_first_col >= first_col and aln_last_col <= last_col:
+            if aln_first_col >= first_col and aln_last_col <= last_col \
+               and not record.id.startswith('CONSENS'):
                  depths[i] += 1
 
     # Change the boundaries to only include high-depth bases
