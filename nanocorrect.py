@@ -108,7 +108,7 @@ def clustal2consensus(fn):
         first_col += 1
 
     while last_col != first_col:
-        if depths[last_col] >= min_coverage:
+        if depths[last_col] <= min_coverage:
             break
         last_col -= 1
 
@@ -139,8 +139,8 @@ def run_poa_and_consensus(overlaps, read_idx):
     p.wait()
     consensus =  clustal2consensus(out_fn)
 
-    os.remove(in_fn)
-    os.remove(out_fn)
+    #os.remove(in_fn)
+    #os.remove(out_fn)
     return (consensus, n_reads)
 
 def run_lashow(name, start, end):
