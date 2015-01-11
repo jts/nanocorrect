@@ -108,7 +108,7 @@ def clustal2consensus(fn):
         first_col += 1
 
     while last_col != first_col:
-        if depths[last_col] <= min_coverage:
+        if depths[last_col] < min_coverage:
             break
         last_col -= 1
 
