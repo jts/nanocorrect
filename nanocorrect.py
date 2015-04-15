@@ -141,15 +141,15 @@ def run_poa_and_consensus(overlaps, read_idx):
     p.wait()
     consensus =  clustal2consensus(out_fn)
 
-    #os.remove(in_fn)
-    #os.remove(out_fn)
+    os.remove(in_fn)
+    os.remove(out_fn)
     return (consensus, n_reads)
 
 def run_lashow(name, start, end):
     
     out_fn = "lashow.%s-%s.out" % (start, end)
     out_fh = open(out_fn, 'w')
-    cmd = "LAshow %s.las %s-%s" % (name, start, end)
+    cmd = "LAshow %s.db %s.las %s-%s" % (name, name, start, end)
     p = subprocess.Popen(cmd, shell=True, stdout=out_fh)
     p.wait()
     out_fh.close()

@@ -11,7 +11,7 @@ all: $(NAME).las
 # Preprocess reads to format them for dazzler
 #
 $(NAME).pp.fasta: $(INPUT)
-	./preprocess.pl $(INPUT) > $@
+	nanocorrect-preprocess.pl $(INPUT) > $@
 
 #
 # Make the dazzler DB, split and dust it
@@ -25,18 +25,13 @@ $(NAME).db: $(NAME).pp.fasta
 # Generate the commands to run DAligner
 #
 HPCcommands.txt: $(NAME).db
-	HPCdaligner -t5 -d $(NAME) > $@
+	HPCdaligner -t5 -mdust $(NAME) > $@
 
 #
-# Run DAligner to generate the local alignments
+# Run DAligner to generate the local alignments and cat all temp files into one
 #
-$(NAME).1.las: HPCcommands.txt
+$(NAME).las: HPCcommands.txt
 	/bin/bash $^
-
-#
-# Cat the .las files together
-#
-$(NAME).las: $(NAME).1.las
 	LAcat $(NAME) > $@
 	rm $(NAME).*.las
 
