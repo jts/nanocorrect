@@ -136,8 +136,9 @@ def get_sequence_coords(seq):
 def run_poa_and_consensus(overlaps, read_idx):
     (in_fn, n_reads) = write_poa_input(overlaps, read_idx)
     out_fn = "clustal-%d.out" % (read_idx)
+    DEVNULL = open(os.devnull, 'wb')
     cmd = "poa -read_fasta %s -clustal %s -hb poa-blosum80.mat" % (in_fn, out_fn)
-    p = subprocess.Popen(cmd, shell=True)
+    p = subprocess.Popen(cmd, shell=True, stderr=DEVNULL)
     p.wait()
     consensus =  clustal2consensus(out_fn)
 
