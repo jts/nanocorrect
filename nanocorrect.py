@@ -21,6 +21,9 @@ def lashow_idstr2idx(s):
 def remove_nonnumeric(s):
     return re.sub("[^0-9]", "", s)
 
+def remove_commas(s):
+    return re.sub(",", "", s)
+
 # parse an LAshow output file and build a map from a read index
 # to the sequences that align to it
 def parse_lashow(fn):
@@ -28,20 +31,26 @@ def parse_lashow(fn):
     
     out = defaultdict(list)
 
+    # this is how to parse the LAshow output.
+    pattern = re.compile("\D*(\d+)\s+(\d+)\s+(\w)\D+(\d+)\D+(\d+)\D+(\d+)\D+(\d+).*")
+
     for line in fh:
 
-        fields = line.split()
-        if len(fields) != 18:
+        # Strip commas from the numbers to make the regex easier
+        line = remove_commas(line)
+        m = pattern.match(line)
+
+        if m is None:
             continue
-       
-        id1 = lashow_idstr2idx(fields[0])
-        id2 = lashow_idstr2idx(fields[1])
-        strand = fields[2]
+
+        id1 = lashow_idstr2idx(m.group(1))
+        id2 = lashow_idstr2idx(m.group(2))
+        strand = m.group(3)
 
         # 
-        s = int(remove_nonnumeric(fields[8]))
-        e = int(remove_nonnumeric(fields[9]))
-    
+        s = int(m.group(6))
+        e = int(m.group(7))
+        
         out[id1].append((id2, strand, s, e))
     return out
 
