@@ -146,7 +146,13 @@ def run_poa_and_consensus(overlaps, read_idx):
     (in_fn, n_reads) = write_poa_input(overlaps, read_idx)
     out_fn = "clustal-%d.out" % (read_idx)
     DEVNULL = open(os.devnull, 'wb')
-    cmd = "poa -read_fasta %s -clustal %s -hb poa-blosum80.mat" % (in_fn, out_fn)
+    
+    blosum_file = "poa-blosum80.mat"
+    if not os.path.exists(blosum_file):
+        # use blosum file relative to the 'nanocorrect.py' when local not available.
+        blosum_file = os.path.join(os.path.dirname(__file__), blosum_file)
+        
+    cmd = "poa -read_fasta %s -clustal %s -hb %s" % (in_fn, out_fn, blosum_file)
     p = subprocess.Popen(cmd, shell=True, stderr=DEVNULL)
     p.wait()
     consensus =  clustal2consensus(out_fn)
