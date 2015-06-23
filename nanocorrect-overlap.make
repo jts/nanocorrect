@@ -4,6 +4,9 @@ SHELL=/bin/bash -o pipefail
 # A pipeline to run daligner on a set of reads
 #
 
+# do not leave failed files around
+.DELETE_ON_ERROR:
+
 # Our target is the local alignments file that daligner generates
 all: $(NAME).las
 
