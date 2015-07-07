@@ -151,7 +151,11 @@ def run_poa_and_consensus(overlaps, read_idx):
     if not os.path.exists(blosum_file):
         # use blosum file relative to the 'nanocorrect.py' when local not available.
         blosum_file = os.path.join(os.path.dirname(__file__), blosum_file)
-        
+    
+    if not os.path.exists(blosum_file):
+        sys.stderr.write("error: poa-blosum80.mat not found\n")
+        sys.exit(1)
+
     cmd = "poa -read_fasta %s -clustal %s -hb %s" % (in_fn, out_fn, blosum_file)
     p = subprocess.Popen(cmd, shell=True, stderr=DEVNULL)
     p.wait()
