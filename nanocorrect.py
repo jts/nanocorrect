@@ -186,18 +186,36 @@ def run_lashow(name, start, end):
     return out_fn
 
 # Args
+if len(sys.argv) != 3:
+    sys.stderr.write("error: received %d arguments instead of 2\n" % (len(sys.argv) - 1))
+    sys.stderr.write("usage: python nanocorrect.py <db name> <read range>\n")
+    sys.exit(1)
+
 name = sys.argv[1]
 read_range = sys.argv[2]
 
 # Open reference file
 ref_fn = "%s.pp.fasta" % (name)
 ref = pysam.Fastafile(ref_fn)
-
+ 
 # Parse the range of read ids to correct
-(start, end) = [ int(x) for x in read_range.split(':') ]
+start = 0
+end = 0
+range_max = ref.nreferences
+
+if read_range == "all":
+    end = range_max
+else:
+    (start, end) = [ int(x) for x in read_range.split(':') ]
+    if start < 0 or end > range_max:
+        sys.stderr.write("error: %d:%d is an invalid read range - read range limits are [0 %d])\n" % (start, end, range_max))
+        sys.exit(1)
 
 # Generate the LAshow file indicating overlaps
-lashow_fn = run_lashow(name, start, end)
+# The indices that nanocorrect takes are zero-based exclusive ends but
+# LAshow is 1-based inclusive ends. Translate between the indexing
+# schemes here.
+lashow_fn = run_lashow(name, start + 1, end)
 
 # Make a dictionary of overlaps
 overlaps = parse_lashow(lashow_fn)
