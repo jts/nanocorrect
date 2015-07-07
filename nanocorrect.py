@@ -205,6 +205,10 @@ range_max = ref.nreferences
 
 if read_range == "all":
     end = range_max
+elif read_range == "{}":
+    sys.stderr.write("error: {} is an invalid read range.\n")
+    sys.stderr.write("Please check that your version of gnu parallel is functioning correctly\n")
+    sys.exit(1)
 else:
     (start, end) = [ int(x) for x in read_range.split(':') ]
     if start < 0 or end > range_max:
