@@ -159,6 +159,11 @@ def run_poa_and_consensus(overlaps, read_idx):
     cmd = "poa -read_fasta %s -clustal %s -hb %s" % (in_fn, out_fn, blosum_file)
     p = subprocess.Popen(cmd, shell=True, stderr=DEVNULL)
     p.wait()
+
+    if p.returncode != 0:
+        sys.stderr.write("error: failed to run poa - is it on your PATH?\n")
+        sys.exit(1)
+
     consensus =  clustal2consensus(out_fn)
 
     os.remove(in_fn)
