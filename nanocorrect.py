@@ -177,6 +177,11 @@ def run_lashow(name, start, end):
     cmd = "LAshow %s.db %s.las %s-%s" % (name, name, start, end)
     p = subprocess.Popen(cmd, shell=True, stdout=out_fh)
     p.wait()
+    
+    if p.returncode != 0:
+        sys.stderr.write("error: failed to run LAshow - is it on your PATH?\n")
+        sys.exit(1)
+
     out_fh.close()
     return out_fn
 
