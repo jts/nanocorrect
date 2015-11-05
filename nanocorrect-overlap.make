@@ -1,5 +1,7 @@
 SHELL=/bin/bash -o pipefail
 
+# Get the path to the Makefile
+ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 #
 # A pipeline to run daligner on a set of reads
 #
@@ -14,7 +16,7 @@ all: $(NAME).las
 # Preprocess reads to format them for dazzler
 #
 $(NAME).pp.fasta: $(INPUT)
-	nanocorrect-preprocess.pl $(INPUT) > $@
+	$(ROOT_DIR)/nanocorrect-preprocess.pl $(INPUT) > $@
 
 #
 # Make the dazzler DB, split and dust it
