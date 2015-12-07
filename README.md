@@ -12,7 +12,7 @@ Example:
 
 First, build the DALIGNER database and compute alignments:
 
-```make -f nanocorrect-overlap.make INPUT=reads.fasta NAME=nc```
+```./nanocorrect-overlap INPUT=reads.fasta NAME=nc```
 
 INPUT is the path to your reads. 
 The NAME variable is the prefix you want to use for the output files.
