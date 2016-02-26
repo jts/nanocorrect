@@ -1,3 +1,5 @@
+** This software is now deprecated, see [this blog post](http://simpsonlab.github.io/2016/02/25/deprecating-nanocorrect/) for details **
+
 A prototype nanopore correction pipeline.
 
 Dependencies:
